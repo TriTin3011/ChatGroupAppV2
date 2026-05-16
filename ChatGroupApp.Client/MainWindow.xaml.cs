@@ -12,13 +12,39 @@ namespace ChatGroupApp.Client;
 public partial class MainWindow : Window
 {
     private readonly ObservableCollection<ChatMessage> _messages = [];
-    private readonly string[] _emoji =
-    [
-        "😀", "😁", "😂", "🤣", "😊", "😍",
-        "😘", "😎", "😢", "😭", "😡", "👍",
-        "👏", "🙏", "💪", "🎉", "🔥", "❤️",
-        "💖", "⭐", "✅", "❌", "🍀", "☕"
-    ];
+    private readonly Dictionary<string, string[]> _emojiGroups = new()
+    {
+        ["Smile"] =
+        [
+            "\U0001F600", "\U0001F601", "\U0001F602", "\U0001F923", "\U0001F605", "\U0001F60A",
+            "\U0001F607", "\U0001F609", "\U0001F60D", "\U0001F618", "\U0001F61C", "\U0001F61D",
+            "\U0001F92A", "\U0001F60E", "\U0001F914", "\U0001F62D", "\U0001F621", "\U0001F634"
+        ],
+        ["Love"] =
+        [
+            "\u2764\uFE0F", "\U0001F9E1", "\U0001F49B", "\U0001F49A", "\U0001F499", "\U0001F49C",
+            "\U0001F90D", "\U0001F90E", "\U0001F5A4", "\U0001F496", "\U0001F497", "\U0001F498",
+            "\U0001F49D", "\U0001F49E", "\U0001F495", "\U0001F48C", "\U0001F48B", "\U0001F970"
+        ],
+        ["Hand"] =
+        [
+            "\U0001F44D", "\U0001F44E", "\U0001F44F", "\U0001F64C", "\U0001F64F", "\U0001F91D",
+            "\U0001F44A", "\U0001F91C", "\U0001F91B", "\u270C\uFE0F", "\U0001F91E", "\U0001FAF6",
+            "\U0001F44C", "\U0001F918", "\U0001F449", "\U0001F448", "\U0001F446", "\U0001F447"
+        ],
+        ["Fun"] =
+        [
+            "\U0001F389", "\U0001F38A", "\u2728", "\U0001F525", "\U0001F4AF", "\u2B50",
+            "\u2705", "\u274C", "\u26A1", "\U0001F4A5", "\U0001F4AB", "\U0001F31F",
+            "\U0001F3C6", "\U0001F3AE", "\U0001F3B5", "\U0001F3A7", "\U0001F4F8", "\U0001F680"
+        ],
+        ["Food"] =
+        [
+            "\U0001F37F", "\U0001F355", "\U0001F354", "\U0001F35F", "\U0001F32D", "\U0001F363",
+            "\U0001F35C", "\U0001F36D", "\U0001F369", "\U0001F370", "\U0001F9CB", "\u2615",
+            "\U0001F34E", "\U0001F34C", "\U0001F347", "\U0001F349", "\U0001F352", "\U0001F36A"
+        ]
+    };
 
     private TcpClient? _client;
     private StreamReader? _reader;
@@ -29,14 +55,14 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         MessagesListBox.ItemsSource = _messages;
-        BuildEmojiButtons();
+        BuildEmojiButtons("Smile");
     }
 
     private async void ConnectButton_Click(object sender, RoutedEventArgs e)
     {
         if (!int.TryParse(PortTextBox.Text.Trim(), out var port) || port is <= 0 or > 65535)
         {
-            MessageBox.Show("Port phai la so tu 1 den 65535.", "Sai port", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Port phải là số từ 1 đến 65535.", "Sai port", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -44,14 +70,14 @@ public partial class MainWindow : Window
         var userName = UserNameTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(userName))
         {
-            MessageBox.Show("Vui long nhap IP server va ten cua ban.", "Thieu thong tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Vui lòng nhập IP server và tên của bạn.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         try
         {
             SetConnectionUi(isConnected: false, isConnecting: true);
-            StatusTextBlock.Text = "Dang ket noi server...";
+            StatusTextBlock.Text = "Đang kết nối server...";
 
             _client = new TcpClient();
             await _client.ConnectAsync(host, port);
@@ -67,14 +93,14 @@ public partial class MainWindow : Window
             _receiveCancellation = new CancellationTokenSource();
 
             SetConnectionUi(isConnected: true);
-            AddMessage("He thong", $"Da ket noi toi {host}:{port}", MessageKind.System);
-            StatusTextBlock.Text = $"Dang chat tai {host}:{port}";
+            AddMessage("Hệ thống", $"Đã kết nối tới {host}:{port}", MessageKind.System);
+            StatusTextBlock.Text = $"Đang chat tại {host}:{port}";
 
             _ = ReceiveLoopAsync(_receiveCancellation.Token);
         }
         catch (Exception ex) when (ex is SocketException or IOException)
         {
-            AddMessage("He thong", $"Khong ket noi duoc server: {ex.Message}", MessageKind.System);
+            AddMessage("Hệ thống", $"Không kết nối được server: {ex.Message}", MessageKind.System);
             Disconnect();
         }
     }
@@ -82,7 +108,7 @@ public partial class MainWindow : Window
     private void DisconnectButton_Click(object sender, RoutedEventArgs e)
     {
         Disconnect();
-        AddMessage("He thong", "Da ngat ket noi.", MessageKind.System);
+        AddMessage("Hệ thống", "Đã ngắt kết nối.", MessageKind.System);
     }
 
     private async void SendButton_Click(object sender, RoutedEventArgs e)
@@ -101,9 +127,15 @@ public partial class MainWindow : Window
 
     private void EmojiButton_Click(object sender, RoutedEventArgs e)
     {
-        EmojiPanel.Visibility = EmojiPanel.Visibility == Visibility.Visible
-            ? Visibility.Collapsed
-            : Visibility.Visible;
+        EmojiPopup.IsOpen = !EmojiPopup.IsOpen;
+    }
+
+    private void EmojiTab_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string groupName })
+        {
+            BuildEmojiButtons(groupName);
+        }
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -127,7 +159,7 @@ public partial class MainWindow : Window
         }
         catch (IOException ex)
         {
-            AddMessage("He thong", $"Gui tin nhan that bai: {ex.Message}", MessageKind.System);
+            AddMessage("Hệ thống", $"Gửi tin nhắn thất bại: {ex.Message}", MessageKind.System);
             Disconnect();
         }
     }
@@ -152,7 +184,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex) when (ex is IOException or SocketException)
         {
-            Dispatcher.Invoke(() => AddMessage("He thong", "Mat ket noi server.", MessageKind.System));
+            Dispatcher.Invoke(() => AddMessage("Hệ thống", "Mất kết nối server.", MessageKind.System));
         }
         finally
         {
@@ -169,10 +201,10 @@ public partial class MainWindow : Window
                 AddMessage(parts[1], parts[2], MessageKind.Other);
                 break;
             case "ME" when parts.Length == 2:
-                AddMessage("Ban", parts[1], MessageKind.Me);
+                AddMessage("Bạn", parts[1], MessageKind.Me);
                 break;
             case "SERVER" when parts.Length == 2:
-                AddMessage("He thong", parts[1], MessageKind.System);
+                AddMessage("Hệ thống", parts[1], MessageKind.System);
                 break;
             default:
                 AddMessage("Server", line, MessageKind.System);
@@ -180,18 +212,25 @@ public partial class MainWindow : Window
         }
     }
 
-    private void BuildEmojiButtons()
+    private void BuildEmojiButtons(string groupName)
     {
-        foreach (var emoji in _emoji)
+        EmojiWrapPanel.Children.Clear();
+
+        if (!_emojiGroups.TryGetValue(groupName, out var emojiList))
+        {
+            return;
+        }
+
+        foreach (var emoji in emojiList)
         {
             var button = new Button
             {
+                Style = (Style)FindResource("EmojiButtonStyle"),
                 Content = emoji,
                 FontFamily = new FontFamily("Segoe UI Emoji"),
-                FontSize = 20,
+                FontSize = 23,
                 Margin = new Thickness(3),
-                MinHeight = 36,
-                ToolTip = $"Chen {emoji}"
+                ToolTip = $"Chèn {emoji}"
             };
 
             button.Click += (_, _) =>
@@ -202,13 +241,14 @@ public partial class MainWindow : Window
                 MessageTextBox.Focus();
             };
 
-            EmojiPanel.Children.Add(button);
+            EmojiWrapPanel.Children.Add(button);
         }
     }
 
     private void AddMessage(string sender, string text, MessageKind kind)
     {
         _messages.Add(new ChatMessage(sender, text, kind));
+        EmptyChatHint.Visibility = Visibility.Collapsed;
         MessagesListBox.ScrollIntoView(_messages[^1]);
     }
 
@@ -238,7 +278,7 @@ public partial class MainWindow : Window
         _client = null;
 
         SetConnectionUi(isConnected: false);
-        StatusTextBlock.Text = "Chua ket noi server.";
+        StatusTextBlock.Text = "Chưa kết nối server.";
     }
 }
 
@@ -249,14 +289,30 @@ public sealed class ChatMessage(string sender, string text, MessageKind kind)
 
     public Brush Background { get; } = kind switch
     {
-        MessageKind.Me => new SolidColorBrush(Color.FromRgb(218, 238, 255)),
-        MessageKind.Other => new SolidColorBrush(Color.FromRgb(239, 242, 247)),
-        _ => new SolidColorBrush(Color.FromRgb(255, 246, 213))
+        MessageKind.Me => new LinearGradientBrush(
+            Color.FromRgb(22, 119, 255),
+            Color.FromRgb(124, 58, 237),
+            new Point(0, 0),
+            new Point(1, 1)),
+        MessageKind.Other => new SolidColorBrush(Color.FromRgb(255, 255, 255)),
+        _ => new SolidColorBrush(Color.FromRgb(255, 248, 220))
     };
+
+    public Brush Foreground { get; } = kind == MessageKind.Me
+        ? Brushes.White
+        : new SolidColorBrush(Color.FromRgb(17, 24, 39));
+
+    public Brush SenderForeground { get; } = kind == MessageKind.Me
+        ? new SolidColorBrush(Color.FromRgb(235, 244, 255))
+        : new SolidColorBrush(Color.FromRgb(107, 114, 128));
 
     public HorizontalAlignment Alignment { get; } = kind == MessageKind.Me
         ? HorizontalAlignment.Right
         : HorizontalAlignment.Left;
+
+    public CornerRadius CornerRadius { get; } = kind == MessageKind.Me
+        ? new CornerRadius(18, 18, 4, 18)
+        : new CornerRadius(18, 18, 18, 4);
 }
 
 public enum MessageKind

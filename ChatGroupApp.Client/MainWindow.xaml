@@ -4,26 +4,101 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="ChatGroupApp Client"
-        Height="620"
-        MinHeight="520"
-        Width="920"
-        MinWidth="760"
+        Title="ChatGroupApp"
+        Height="700"
+        MinHeight="560"
+        Width="980"
+        MinWidth="820"
+        WindowStartupLocation="CenterScreen"
         Closing="Window_Closing">
     <Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="MinHeight" Value="34" />
-            <Setter Property="Padding" Value="12,6" />
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#00A5FF" Offset="0" />
+            <GradientStop Color="#7C3AED" Offset="0.55" />
+            <GradientStop Color="#FF4D8D" Offset="1" />
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="InkBrush" Color="#111827" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#6B7280" />
+        <SolidColorBrush x:Key="LineBrush" Color="#E5E7EB" />
+
+        <Style x:Key="RoundedButton" TargetType="Button">
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Padding" Value="14,8" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="#111827" />
+            <Setter Property="Background" Value="#EEF2FF" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="18"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="MinHeight" Value="34" />
-            <Setter Property="Padding" Value="8,6" />
+
+        <Style x:Key="PrimaryButton" BasedOn="{StaticResource RoundedButton}" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#1677FF" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="DangerButton" BasedOn="{StaticResource RoundedButton}" TargetType="Button">
+            <Setter Property="Foreground" Value="#E11D48" />
+            <Setter Property="Background" Value="#FFE4EC" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="PillTextBox" TargetType="TextBox">
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Padding" Value="14,7" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#D7DAE2" />
+            <Setter Property="Background" Value="#FFFFFF" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="19">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="EmojiButtonStyle" BasedOn="{StaticResource RoundedButton}" TargetType="Button">
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontFamily" Value="Segoe UI Emoji" />
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style x:Key="EmojiTabStyle" BasedOn="{StaticResource RoundedButton}" TargetType="Button">
+            <Setter Property="Width" Value="42" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontFamily" Value="Segoe UI Emoji" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="Background" Value="#F3F4F6" />
         </Style>
     </Window.Resources>
 
-    <Grid Background="#F5F7FA">
+    <Grid Background="#EEF4FF">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -31,115 +106,185 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
-                Background="#FFFFFF"
-                BorderBrush="#D7DDE8"
-                BorderThickness="0,0,0,1"
-                Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.2*" />
-                    <ColumnDefinition Width="90" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                    <TextBlock Text="IP Server" FontWeight="SemiBold" />
-                    <TextBox x:Name="ServerIpTextBox" Text="127.0.0.1" />
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                    <TextBlock Text="Port" FontWeight="SemiBold" />
-                    <TextBox x:Name="PortTextBox" Text="5000" />
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                    <TextBlock Text="Ten cua ban" FontWeight="SemiBold" />
-                    <TextBox x:Name="UserNameTextBox" Text="Student" />
-                </StackPanel>
-
-                <Button x:Name="ConnectButton"
-                        Grid.Column="3"
-                        Width="110"
-                        Margin="0,17,8,0"
-                        Click="ConnectButton_Click"
-                        Content="Ket noi" />
-
-                <Button x:Name="DisconnectButton"
-                        Grid.Column="4"
-                        Width="110"
-                        Margin="0,17,0,0"
-                        Click="DisconnectButton_Click"
-                        Content="Ngat"
-                        IsEnabled="False" />
-            </Grid>
-        </Border>
-
-        <Grid Grid.Row="1" Margin="16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <TextBlock x:Name="StatusTextBlock"
-                       Grid.Row="0"
-                       Margin="0,0,0,10"
-                       Foreground="#4D5A6B"
-                       Text="Chua ket noi server." />
-
-            <Border Grid.Row="1"
-                    Background="#FFFFFF"
-                    BorderBrush="#D7DDE8"
-                    BorderThickness="1"
-                    CornerRadius="8">
-                <ListBox x:Name="MessagesListBox"
-                         BorderThickness="0"
-                         FontFamily="Segoe UI Emoji, Segoe UI"
-                         FontSize="15"
-                         Padding="10">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="0,3"
-                                    Padding="10,8"
-                                    Background="{Binding Background}"
-                                    CornerRadius="7"
-                                    HorizontalAlignment="{Binding Alignment}">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Sender}"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="#566173" />
-                                    <TextBlock Text="{Binding Text}"
-                                               FontSize="15"
-                                               Foreground="#172033"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Border>
-        </Grid>
-
-        <Border Grid.Row="2"
-                Background="#FFFFFF"
-                BorderBrush="#D7DDE8"
-                BorderThickness="0,1,0,0"
-                Padding="16">
+                Background="{StaticResource HeaderBrush}"
+                Padding="18,16">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <UniformGrid x:Name="EmojiPanel"
-                             Grid.Row="0"
-                             Columns="12"
-                             Margin="0,0,0,10"
-                             Visibility="Collapsed" />
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <Grid Grid.Row="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="48"
+                                Height="48"
+                                Background="#FFFFFF"
+                                CornerRadius="24"
+                                Margin="0,0,12,0">
+                            <TextBlock Text="CG"
+                                       FontSize="18"
+                                       FontWeight="Black"
+                                       Foreground="#1677FF"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="ChatGroupApp"
+                                       FontSize="24"
+                                       FontWeight="Black"
+                                       Foreground="White" />
+                            <TextBlock x:Name="StatusTextBlock"
+                                       Text="Chưa kết nối server."
+                                       Foreground="#EAF6FF"
+                                       FontSize="13" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Grid.Column="1"
+                            Background="#33FFFFFF"
+                            CornerRadius="18"
+                            Padding="12,8"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="Lab 01 | group chat"
+                                   Foreground="White"
+                                   FontWeight="SemiBold" />
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,18,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.35*" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="ServerIpTextBox"
+                             Grid.Column="0"
+                             Style="{StaticResource PillTextBox}"
+                             Margin="0,0,10,0"
+                             Text="127.0.0.1"
+                             ToolTip="IP Server" />
+
+                    <TextBox x:Name="PortTextBox"
+                             Grid.Column="1"
+                             Style="{StaticResource PillTextBox}"
+                             Margin="0,0,10,0"
+                             Text="5000"
+                             ToolTip="Port" />
+
+                    <TextBox x:Name="UserNameTextBox"
+                             Grid.Column="2"
+                             Style="{StaticResource PillTextBox}"
+                             Margin="0,0,10,0"
+                             Text="Student"
+                             ToolTip="Tên của bạn" />
+
+                    <Button x:Name="ConnectButton"
+                            Grid.Column="3"
+                            Style="{StaticResource PrimaryButton}"
+                            Width="112"
+                            Margin="0,0,8,0"
+                            Click="ConnectButton_Click"
+                            Content="Kết nối" />
+
+                    <Button x:Name="DisconnectButton"
+                            Grid.Column="4"
+                            Style="{StaticResource DangerButton}"
+                            Width="96"
+                            Click="DisconnectButton_Click"
+                            Content="Ngắt"
+                            IsEnabled="False" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Margin="18"
+                Background="#F8FAFF"
+                BorderBrush="#DCE7F7"
+                BorderThickness="1"
+                CornerRadius="22">
+            <Grid>
+                <ListBox x:Name="MessagesListBox"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         FontFamily="Segoe UI Emoji, Segoe UI"
+                         FontSize="15"
+                         Padding="16"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0,4" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel HorizontalAlignment="{Binding Alignment}"
+                                        MaxWidth="580">
+                                <Border Padding="13,9"
+                                        Background="{Binding Background}"
+                                        CornerRadius="{Binding CornerRadius}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Sender}"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   Foreground="{Binding SenderForeground}" />
+                                        <TextBlock Text="{Binding Text}"
+                                                   FontSize="15"
+                                                   Foreground="{Binding Foreground}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Border x:Name="EmptyChatHint"
+                        Background="#DFFFFFFF"
+                        CornerRadius="20"
+                        Padding="24"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Bắt đầu chat nào!!!"
+                                   FontSize="22"
+                                   FontWeight="Black"
+                                   Foreground="#182235"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Kết nối server rồi bắt đầu chat nhóm."
+                                   Margin="0,6,0,0"
+                                   Foreground="#697386"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="18,0,18,18">
+            <Border Background="#FFFFFF"
+                    BorderBrush="#DCE7F7"
+                    BorderThickness="1"
+                    CornerRadius="24"
+                    Padding="10">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -148,27 +293,102 @@
 
                     <Button x:Name="EmojiButton"
                             Grid.Column="0"
-                            Width="48"
-                            Margin="0,0,8,0"
+                            Width="46"
+                            Height="46"
+                            Style="{StaticResource EmojiButtonStyle}"
                             Click="EmojiButton_Click"
-                            Content="😊"
-                            ToolTip="Mo emoji" />
+                            Content="&#x1F60A;"
+                            ToolTip="Mở emoji" />
 
                     <TextBox x:Name="MessageTextBox"
                              Grid.Column="1"
+                             Style="{StaticResource PillTextBox}"
+                             Margin="8,0"
                              AcceptsReturn="False"
                              IsEnabled="False"
                              KeyDown="MessageTextBox_KeyDown" />
 
                     <Button x:Name="SendButton"
                             Grid.Column="2"
-                            Width="110"
-                            Margin="8,0,0,0"
+                            Style="{StaticResource PrimaryButton}"
+                            Width="94"
                             Click="SendButton_Click"
-                            Content="Gui"
+                            Content="Gửi"
                             IsEnabled="False" />
                 </Grid>
-            </Grid>
-        </Border>
+            </Border>
+
+            <Popup x:Name="EmojiPopup"
+                   PlacementTarget="{Binding ElementName=EmojiButton}"
+                   Placement="Top"
+                   StaysOpen="False"
+                   AllowsTransparency="True"
+                   PopupAnimation="Fade">
+                <Border Width="420"
+                        MaxHeight="300"
+                        Margin="0,0,0,10"
+                        Background="White"
+                        BorderBrush="#D8E1F0"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="12">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24"
+                                          ShadowDepth="6"
+                                          Opacity="0.18" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   Text="Emoji"
+                                   FontWeight="Black"
+                                   Foreground="{StaticResource InkBrush}"
+                                   Margin="4,0,0,10" />
+
+                        <ScrollViewer Grid.Row="1"
+                                      MaxHeight="190"
+                                      VerticalScrollBarVisibility="Auto">
+                            <WrapPanel x:Name="EmojiWrapPanel" />
+                        </ScrollViewer>
+
+                        <UniformGrid Grid.Row="2"
+                                     Columns="5"
+                                     Margin="0,10,0,0">
+                            <Button x:Name="SmileEmojiTab"
+                                    Style="{StaticResource EmojiTabStyle}"
+                                    Click="EmojiTab_Click"
+                                    Tag="Smile"
+                                    Content="&#x1F600;"
+                                    ToolTip="Mặt cười" />
+                            <Button Style="{StaticResource EmojiTabStyle}"
+                                    Click="EmojiTab_Click"
+                                    Tag="Love"
+                                    Content="&#x2764;"
+                                    ToolTip="Cảm xúc" />
+                            <Button Style="{StaticResource EmojiTabStyle}"
+                                    Click="EmojiTab_Click"
+                                    Tag="Hand"
+                                    Content="&#x1F44D;"
+                                    ToolTip="Cử chỉ" />
+                            <Button Style="{StaticResource EmojiTabStyle}"
+                                    Click="EmojiTab_Click"
+                                    Tag="Fun"
+                                    Content="&#x1F389;"
+                                    ToolTip="Vui vẻ" />
+                            <Button Style="{StaticResource EmojiTabStyle}"
+                                    Click="EmojiTab_Click"
+                                    Tag="Food"
+                                    Content="&#x1F37F;"
+                                    ToolTip="Đồ ăn" />
+                        </UniformGrid>
+                    </Grid>
+                </Border>
+            </Popup>
+        </Grid>
     </Grid>
 </Window>
