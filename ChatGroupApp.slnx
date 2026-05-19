@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="ChatGroupApp.Client/ChatGroupApp.Client.csproj" />
-  <Project Path="ChatGroupApp.Server/ChatGroupApp.Server.csproj" />
-</Solution>

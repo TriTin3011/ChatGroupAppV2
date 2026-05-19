@@ -278,7 +278,7 @@ public partial class MainWindow : Window
         _client = null;
 
         SetConnectionUi(isConnected: false);
-        StatusTextBlock.Text = "Chưa kết nối server.";
+        StatusTextBlock.Text = "Sẵn sàng kết nối nè!";
     }
 }
 
@@ -290,29 +290,29 @@ public sealed class ChatMessage(string sender, string text, MessageKind kind)
     public Brush Background { get; } = kind switch
     {
         MessageKind.Me => new LinearGradientBrush(
-            Color.FromRgb(22, 119, 255),
-            Color.FromRgb(124, 58, 237),
+            Color.FromRgb(255, 122, 182),
+            Color.FromRgb(180, 140, 255),
             new Point(0, 0),
             new Point(1, 1)),
         MessageKind.Other => new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-        _ => new SolidColorBrush(Color.FromRgb(255, 248, 220))
+        _ => new SolidColorBrush(Color.FromRgb(255, 242, 220))
     };
 
     public Brush Foreground { get; } = kind == MessageKind.Me
         ? Brushes.White
-        : new SolidColorBrush(Color.FromRgb(17, 24, 39));
+        : new SolidColorBrush(Color.FromRgb(43, 36, 64));
 
     public Brush SenderForeground { get; } = kind == MessageKind.Me
-        ? new SolidColorBrush(Color.FromRgb(235, 244, 255))
-        : new SolidColorBrush(Color.FromRgb(107, 114, 128));
+        ? new SolidColorBrush(Color.FromRgb(255, 238, 248))
+        : new SolidColorBrush(Color.FromRgb(127, 120, 149));
 
     public HorizontalAlignment Alignment { get; } = kind == MessageKind.Me
         ? HorizontalAlignment.Right
         : HorizontalAlignment.Left;
 
     public CornerRadius CornerRadius { get; } = kind == MessageKind.Me
-        ? new CornerRadius(18, 18, 4, 18)
-        : new CornerRadius(18, 18, 18, 4);
+        ? new CornerRadius(22, 22, 6, 22)
+        : new CornerRadius(22, 22, 22, 6);
 }
 
 public enum MessageKind
