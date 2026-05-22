@@ -248,7 +248,7 @@ async Task HandleFileTransferAsync(TcpClient tcpClient)
 
             Directory.CreateDirectory("uploads");
             var filePath = Path.Combine("uploads", fileId);
-            
+
             await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true))
             {
                 var buffer = new byte[81920];
@@ -262,12 +262,9 @@ async Task HandleFileTransferAsync(TcpClient tcpClient)
             }
 
             Console.WriteLine($"File received: {fileName} ({size} bytes) from {senderName}");
-            
-            // Broadcast file message to chat clients
-            // FILE|sender|fileName|fileId|size|isImage
+
             await BroadcastAsync($"FILE|{senderName}|{fileName}|{fileId}|{size}|{isImage}");
-            
-            // Send back an OK response
+
             var response = Encoding.UTF8.GetBytes("OK\n");
             await stream.WriteAsync(response);
         }
@@ -275,7 +272,7 @@ async Task HandleFileTransferAsync(TcpClient tcpClient)
         {
             var fileId = parts[1];
             var filePath = Path.Combine("uploads", fileId);
-            
+
             if (File.Exists(filePath))
             {
                 var fileInfo = new FileInfo(filePath);
