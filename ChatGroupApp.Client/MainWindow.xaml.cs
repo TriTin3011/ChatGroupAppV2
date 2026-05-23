@@ -278,7 +278,28 @@ public partial class MainWindow : Window
     {
         if (sender is Button btn && btn.Tag is ChatMessage msg && msg.FileId != null)
         {
-            _ = DownloadFileAsync(msg);
+            // Kiểm tra xem file đã được tải ngầm chưa
+            if (msg.FilePath != null && File.Exists(msg.FilePath))
+            {
+                // Mở hộp thoại chọn chỗ lưu như Zalo
+                var saveDialog = new SaveFileDialog
+                {
+                    FileName = msg.Text, // msg.Text đang chứa tên gốc của file
+                    Filter = "All files (*.*)|*.*",
+                    Title = "Lưu tệp về máy"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    File.Copy(msg.FilePath, saveDialog.FileName, overwrite: true);
+                    MessageBox.Show("Đã lưu tệp thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            else
+            {
+                // Nếu là tệp bình thường chưa tải, thì tiến hành tải từ server
+                _ = DownloadFileAsync(msg);
+            }
         }
     }
 
@@ -470,6 +491,7 @@ public partial class MainWindow : Window
                 EmptyChatHint.Visibility = Visibility.Collapsed;
                 MessagesListBox.ScrollIntoView(msg);
 
+                // MỞ LẠI VIỆC TẢI NGẦM ẢNH ĐỂ CÓ SOURCE HIỂN THỊ LÊN KHUNG CHAT
                 if (isImage)
                 {
                     _ = DownloadFileAsync(msg);

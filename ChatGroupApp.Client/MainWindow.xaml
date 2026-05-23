@@ -1,9 +1,9 @@
 <Window x:Class="ChatGroupApp.Client.MainWindow"
-        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
         Title="ChatGroupApp"
         Height="720" MinHeight="600"
@@ -143,6 +143,34 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="CircleDownloadButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="38" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="#FAFDFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#FFE2F0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="19">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.12" Color="#FF7AB6" />
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#FFEAF4" />
+                                <Setter Property="BorderBrush" Value="#FF7AB6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Background="{StaticResource PageBrush}" Margin="0">
@@ -202,7 +230,7 @@
                 <DropShadowEffect BlurRadius="24" ShadowDepth="8" Opacity="0.14" Color="#9AD4F4" />
             </Border.Effect>
             <Grid>
-                <ListBox x:Name="MessagesListBox" Background="Transparent" BorderThickness="0" FontFamily="Segoe UI Emoji, Segoe UI" FontSize="15" Padding="22" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+                <ListBox x:Name="MessagesListBox" Background="Transparent" BorderThickness="0" FontFamily="Segoe UI Emoji, Segoe UI" FontSize="15" Padding="22" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -220,8 +248,32 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel HorizontalAlignment="{Binding Alignment}" MaxWidth="620">
-                                <Border Padding="16,12" Background="{Binding Background}" CornerRadius="{Binding CornerRadius}">
+                            <Grid HorizontalAlignment="{Binding Alignment}" MaxWidth="660">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0" Content="📥" Margin="0,0,12,0" Click="DownloadFile_Click" Tag="{Binding .}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource CircleDownloadButtonStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsFile}" Value="True" />
+                                                        <Condition Binding="{Binding IsTransferring}" Value="False" />
+                                                        <Condition Binding="{Binding Kind}" Value="Me" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <Border Grid.Column="1" Padding="16,12" Background="{Binding Background}" CornerRadius="{Binding CornerRadius}" MaxWidth="600">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" ShadowDepth="3" Opacity="0.12" />
                                     </Border.Effect>
@@ -248,12 +300,36 @@
                                                         <DataTrigger Binding="{Binding IsImage}" Value="True">
                                                             <Setter Property="Visibility" Value="Visible" />
                                                         </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ImageSource}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
                                             <Button Click="ViewImage_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" Padding="0" Tag="{Binding ImageSource}">
                                                 <Image Source="{Binding ImageSource}" Stretch="Uniform" />
                                             </Button>
+                                        </Border>
+
+                                        <Border Background="#20000000" CornerRadius="8" Padding="12" Margin="0,6,0,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding IsImage}" Value="True" />
+                                                                <Condition Binding="{Binding ImageSource}" Value="{x:Null}" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#x1F5BC;&#xFE0F;" FontFamily="Segoe UI Emoji" FontSize="24" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding Text}" FontSize="14" Foreground="{Binding Foreground}" VerticalAlignment="Center" MaxWidth="250" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
                                         </Border>
 
                                         <Border Background="#20000000" CornerRadius="8" Padding="12" Margin="0,6,0,0">
@@ -277,24 +353,6 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Button Content="Tải xuống" Margin="0,8,0,0" Padding="10,6" Cursor="Hand" Click="DownloadFile_Click" Tag="{Binding .}" Background="#40FFFFFF" BorderThickness="0" Foreground="{Binding Foreground}" FontWeight="Bold">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <MultiDataTrigger>
-                                                            <MultiDataTrigger.Conditions>
-                                                                <Condition Binding="{Binding IsFile}" Value="True" />
-                                                                <Condition Binding="{Binding FilePath}" Value="{x:Null}" />
-                                                                <Condition Binding="{Binding IsTransferring}" Value="False" />
-                                                            </MultiDataTrigger.Conditions>
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </MultiDataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-
                                         <StackPanel Margin="0,8,0,0">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
@@ -311,7 +369,25 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
-                            </StackPanel>
+
+                                <Button Grid.Column="2" Content="📥" Margin="12,0,0,0" Click="DownloadFile_Click" Tag="{Binding .}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource CircleDownloadButtonStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsFile}" Value="True" />
+                                                        <Condition Binding="{Binding IsTransferring}" Value="False" />
+                                                        <Condition Binding="{Binding Kind}" Value="Other" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -361,7 +437,7 @@
                         <Button x:Name="AttachButton" Style="{StaticResource EmojiButtonStyle}" Content="&#x2795;" ToolTip="Đính kèm" Click="AttachButton_Click" IsEnabled="False" />
                     </StackPanel>
 
-                    <TextBox x:Name="MessageTextBox" Grid.Column="1" Style="{StaticResource CuteTextBox}" IsEnabled="False" KeyDown="MessageTextBox_KeyDown" Margin="0,0,10,0"  />
+                    <TextBox x:Name="MessageTextBox" Grid.Column="1" Style="{StaticResource CuteTextBox}" IsEnabled="False" KeyDown="MessageTextBox_KeyDown" Margin="0,0,10,0" />
                     <Button x:Name="SendButton" Grid.Column="2" Style="{StaticResource CuteButton}" Width="104" Content="Gửi" IsEnabled="False" Click="SendButton_Click" />
                 </Grid>
             </Grid>
@@ -383,11 +459,11 @@
                         <WrapPanel x:Name="EmojiWrapPanel" />
                     </ScrollViewer>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
-                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Smile" Content="&#x1F600;" ToolTip="Mặt cười"  />
-                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Love" Content="&#x2764;" ToolTip="Cảm xúc"  />
-                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Hand" Content="&#x1F44D;" ToolTip="Cử chỉ"  />
-                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Fun" Content="&#x1F389;" ToolTip="Vui vẻ"  />
-                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Food" Content="&#x1F37F;" ToolTip="Đồ ăn"  />
+                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Smile" Content="&#x1F600;" ToolTip="Mặt cười" />
+                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Love" Content="&#x2764;" ToolTip="Cảm xúc" />
+                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Hand" Content="&#x1F44D;" ToolTip="Cử chỉ" />
+                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Fun" Content="&#x1F389;" ToolTip="Vui vẻ" />
+                        <Button Style="{StaticResource EmojiTabStyle}" Click="EmojiTab_Click" Tag="Food" Content="&#x1F37F;" ToolTip="Đồ ăn" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -399,17 +475,15 @@
                     <DropShadowEffect BlurRadius="26" ShadowDepth="8" Opacity="0.22" Color="#E690C4" />
                 </Border.Effect>
                 <StackPanel>
-                    <Button Content="&#x1F4F7; Gửi ảnh" Style="{StaticResource PopupOptionButton}" Margin="0,0,0,6" Click="SendImageOption_Click" FontFamily="Segoe UI Emoji, Segoe UI"  />
-                    <Button Content="&#x1F4CE; Gửi file" Style="{StaticResource PopupOptionButton}" Click="SendFileOption_Click" FontFamily="Segoe UI Emoji, Segoe UI"  />
+                    <Button Content="&#x1F4F7; Gửi ảnh" Style="{StaticResource PopupOptionButton}" Margin="0,0,0,6" Click="SendImageOption_Click" FontFamily="Segoe UI Emoji, Segoe UI" />
+                    <Button Content="&#x1F4CE; Gửi file" Style="{StaticResource PopupOptionButton}" Click="SendFileOption_Click" FontFamily="Segoe UI Emoji, Segoe UI" />
                 </StackPanel>
             </Border>
         </Popup>
 
         <Border x:Name="ImageViewerOverlay" Grid.RowSpan="3" Background="#DC000000" Visibility="Collapsed" Panel.ZIndex="1000">
             <Grid>
-                <Button Content="&#x2715;" Foreground="White" FontSize="26" Background="Transparent" BorderThickness="0" 
-                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" Cursor="Hand"
-                        Click="CloseViewer_Click" />
+                <Button Content="&#x2715;" Foreground="White" FontSize="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" Cursor="Hand" Click="CloseViewer_Click" />
                 <Image x:Name="FullSizeImage" Margin="60" Stretch="Uniform" MouseLeftButtonDown="CloseViewer_Click" Cursor="Hand"/>
             </Grid>
         </Border>
